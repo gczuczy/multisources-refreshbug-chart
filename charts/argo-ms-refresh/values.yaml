@@ -13,7 +13,7 @@ argoapp:
   syncPolicy:
     prune: true
     selfHeal: true
-    applOutOfSyncOnly: true
+    applyOutOfSyncOnly: true
     validate: false
 
 deployment:
