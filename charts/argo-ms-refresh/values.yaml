@@ -5,7 +5,7 @@ argoapp:
   project: default
   valuesrepo: ~
   valuesref: HEAD
-  repourl: ~
+  repourl: https://gczuczy.github.io//multisources-refreshbug-chart/
   version: ~
   chart: argo-ms-refresh
   relname: ~
