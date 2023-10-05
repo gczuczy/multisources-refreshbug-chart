@@ -1,0 +1,72 @@
+{{- if not .Values.argoapp.valuesfile }}
+{{ fail "argoapp.valuesfile is required" }}
+{{- end }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.argoapp.appname | required ".argoapp.appname is required" | quote }}
+  namespace: {{ .Values.argoapp.namespace }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    name: {{ .Values.argoapp.appname | required ".argoapp.appname is required" | quote }}
+    helm_chart_version: {{ .Chart.Version }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+    argocd.argoproj.io/manifest-generate-paths: /{{ dir .Values.argoapp.valuesfile }}
+spec:
+  project: {{ .Values.argoapp.project | quote }}
+
+  sources:
+    - repoURL: {{ .Values.argoapp.valuesrepo | required "argoapp.valuesrepo is required" | quote}}
+      targetRevision: {{ .Values.argoapp.valuesref | quote }}
+      path: {{ dir .Values.argoapp.valuesfile |  quote }}
+      ref: valuesrepo
+    - repoURL: {{ .Values.argoapp.repourl | quote }}
+      targetRevision: {{ default .Chart.Version .Values.argoapp.version | quote }}
+      chart: {{ default .Chart.Name .Values.argoapp.chart | quote }}
+      plugin:
+        env:
+          - name: RELEASE_NAME
+            value: {{ .Values.argoapp.relname | default .Values.argoapp.appname | quote }}
+          - name: HELM_ARGS
+            value: "-f env-values.yaml"
+      from:
+        - sourcePath: {{ printf "$valuesrepo/%s" .Values.argoapp.valuesfile | quote }}
+          destinationPath: "env-values.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: {{ .Values.argoapp.deploymentNamespace | required "Deployment namespace specification is required" | quote }}
+  syncPolicy:
+    automated:
+      prune: {{ .Values.argoapp.syncPolicy.prune }}
+      selfHeal: {{ .Values.argoapp.syncPolicy.selfHeal }}
+      allowEmpty: false
+    syncOptions:
+      {{- if .Values.argoapp.syncOptions.applyOutOfSyncOnly }}
+      - ApplyOutOfSyncOnly=true
+      {{- else }}
+      - ApplyOutOfSyncOnly=false
+      {{- end }}
+      {{- if .Values.argoapp.syncOptions.validate }}
+      - Validate=true
+      {{- else }}
+      - Validate=false
+      {{- end }}
+      - CreateNamespace=true
+      - PruneLast=true
+      - ServerSideApply=false
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 10m
+  revisionHistoryLimit: 5
+  ignoreDifferences:
+    - group: argoproj.io
+      kind: Application
+      jsonPointers:
+        - /status
