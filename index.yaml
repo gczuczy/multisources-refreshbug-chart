@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  argo-ms-refresh:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-10-05T12:02:01.010604992Z"
+    description: A Helm chart for Kubernetes
+    digest: c456803523d8c4bba5fc4dc82d661c272f637c4314871517b07d8357e6becb62
+    name: argo-ms-refresh
+    type: application
+    urls:
+    - https://github.com/gczuczy/multisources-refreshbug-chart/releases/download/argo-ms-refresh-0.1.1/argo-ms-refresh-0.1.1.tgz
+    version: 0.1.1
+generated: "2023-10-05T12:02:01.010612792Z"
