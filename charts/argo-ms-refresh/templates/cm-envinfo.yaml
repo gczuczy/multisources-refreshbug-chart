@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: environment-info
+  name: {{ .Release.Name }}-envinfo
   namespace: {{ .Release.Namespace }}
 data:
   {{- if .Values.envinfo }}
@@ -15,6 +15,5 @@ data:
     who have flooded against us. And don't let us bruteforce /etc/shadow,
     But deliver us to runlevel 5. For thine is the access to Vortex,
      /dev/tty, and the inetd, for ever and ever. su.
-     
   {{- end }}
 
